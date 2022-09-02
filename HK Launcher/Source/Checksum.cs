@@ -6,6 +6,7 @@ namespace HK_Launcher.Source
     internal static class Checksum
     {
         private static readonly ConcurrentDictionary<string, string> filesToUpdate = new();
+
         public static async Task ChecksumValidation(string filename, string checksum)
         {
             if (!File.Exists(filename)) return;
@@ -17,7 +18,7 @@ namespace HK_Launcher.Source
             var result = BitConverter.ToString(hash.Result).Replace("-", "").ToLowerInvariant();
             if (result == checksum)
             {
-                filesToUpdate.TryRemove(Path.GetFileName(filename),out _);
+                filesToUpdate[Path.GetFileName(filename)] = String.Empty;
             }
             else
             {
@@ -27,6 +28,7 @@ namespace HK_Launcher.Source
 
         public static async Task<ConcurrentDictionary<string, string>> ReadChecksumManifest(string filename)
         {
+            filesToUpdate.Clear();
             foreach (var line in await File.ReadAllLinesAsync(filename))
             {
                 var parts = line.Split(' ');
@@ -39,6 +41,7 @@ namespace HK_Launcher.Source
                 var file = string.Join(" ", parts[0..^1]);
                 filesToUpdate.TryAdd(file, hash);
             }
+
             var taskList = new List<Task>();
 
             foreach (var file in filesToUpdate)
@@ -54,7 +57,7 @@ namespace HK_Launcher.Source
                     taskList.Add(ChecksumValidation(file.Key, file.Value));
                 }
             }
-            
+
             await Task.WhenAll(taskList);
             return filesToUpdate;
         }

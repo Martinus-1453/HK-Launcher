@@ -12,12 +12,11 @@ namespace HK_Launcher
 
         private void splitContainer1_SplitterMoved(object sender, SplitterEventArgs e)
         {
-
         }
 
         private bool CheckRequiredFilesExist()
         {
-            return File.Exists("G2O_Launcher.exe") && 
+            return File.Exists("G2O_Launcher.exe") &&
                    File.Exists("system/Gothic2.exe") &&
                    File.Exists("G2O_Proxy.dll");
         }
@@ -38,7 +37,6 @@ namespace HK_Launcher
                 {
                     label1.Text = "Brakuje plików g2o lub aplikacja jest w z³ym folderze";
                 }
-
             }
             catch (Exception exception)
             {
@@ -80,13 +78,20 @@ namespace HK_Launcher
                     });
                 });
             progressBar1.Style = ProgressBarStyle.Continuous;
-            foreach (var download in downloadList.Result.Keys)
+            Downloader.OldFilesRemover(downloadList.Result.Keys);
+            foreach (var download in downloadList.Result)
             {
+                if (download.Value == String.Empty)
+                {
+                    continue;
+                }
+
                 ++counter;
                 downloadInfo = $"Pobieranie ({counter}/{downloadList.Result.Keys.Count})";
-                namename = download;
-                await Downloader.DownloadFile(download);
+                namename = download.Key;
+                await Downloader.DownloadFile(download.Key);
             }
+
             label1.Text = "Gotowe!";
             progressBar1.Value = 100;
         }
@@ -100,10 +105,8 @@ namespace HK_Launcher
         }
 
 
-
         private void label1_Click(object sender, EventArgs e)
         {
-
         }
     }
 }

@@ -3,12 +3,12 @@ using System.Security.Cryptography;
 
 
 const string manifestFilename = "manifest.hk";
-var allowedExtensions = new[] {".vdf", ".zen", ".dll"};
+var allowedExtensions = new[] { ".vdf", ".zen", ".dll" };
 
 //Delete old manifest file
 File.Delete(manifestFilename);
 
-ConcurrentDictionary<string,string> fileHashDictionary = new();
+ConcurrentDictionary<string, string> fileHashDictionary = new();
 
 var fileList = Directory
     .GetFiles(Directory.GetCurrentDirectory())

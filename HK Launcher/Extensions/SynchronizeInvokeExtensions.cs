@@ -17,7 +17,7 @@ namespace Extensions
             }
         }
 
-        public static TOut InvokeIfRequired<TIn, TOut>(this TIn obj, Func<TIn, TOut> func) 
+        public static TOut InvokeIfRequired<TIn, TOut>(this TIn obj, Func<TIn, TOut> func)
             where TIn : ISynchronizeInvoke
         {
             return obj.InvokeRequired

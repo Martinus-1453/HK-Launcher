@@ -9,12 +9,32 @@ namespace HK_Launcher.Source
         public static readonly string remoteUri = "http://localhost:8080/";
         public static readonly string manifestFilename = "manifest.hk";
 
+        static readonly List<string> nativeDataFileList = new()
+        {
+            "Anims.vdf",
+            "Anims_Addon.vdf",
+            "Meshes.vdf",
+            "Meshes_Addon.vdf",
+            "Sounds.vdf",
+            "Sounds_Addon.vdf",
+            "Sounds_bird_01.vdf",
+            "Speech_Addon.vdf",
+            "Speech1.vdf",
+            "Speech2.vdf",
+            "SystemPack.vdf",
+            "Textures.vdf",
+            "Textures_Addon.vdf",
+            "Worlds.vdf",
+            "Worlds_Addon.vdf"
+        };
+
         public static void SetHandlers(AsyncCompletedEventHandler? downloadFileCompletedHandler = null,
             DownloadProgressChangedEventHandler? downloadFileProgressHandler = null)
         {
             webClient.DownloadFileCompleted += downloadFileCompletedHandler;
             webClient.DownloadProgressChanged += downloadFileProgressHandler;
         }
+
         public static async Task DownloadFile(string filename)
         {
             Constants.fileExtensionMap.TryGetValue(Path.GetExtension(filename).ToLower(), out var filePath);
@@ -26,6 +46,21 @@ namespace HK_Launcher.Source
             else
             {
                 await webClient.DownloadFileTaskAsync($"{remoteUri}{filename}", filename);
+            }
+        }
+
+        public static void OldFilesRemover(ICollection<string> fileCollection)
+        {
+            var currentDataFiles = Directory.GetFiles(Path.Combine(Directory.GetCurrentDirectory(), "Data/"));
+
+            foreach (var file in currentDataFiles)
+            {
+                var fileName = Path.GetFileName(file);
+                if (!nativeDataFileList.Contains(fileName, StringComparer.OrdinalIgnoreCase) &&
+                    !fileCollection.Contains(fileName, StringComparer.OrdinalIgnoreCase))
+                {
+                    File.Delete(file);
+                }
             }
         }
     }

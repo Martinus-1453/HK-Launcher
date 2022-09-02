@@ -4,9 +4,9 @@
     {
         public static Dictionary<string, string> fileExtensionMap = new()
         {
-            {".zen", @"_work\Data\Worlds\" },
-            {".vdf", @"Data\"},
-            {".dll", @"Multiplayer\modules\"}
+            { ".zen", @"_work\Data\Worlds\" },
+            { ".vdf", @"Data\" },
+            { ".dll", @"Multiplayer\modules\" }
         };
 
         // DO NOT change that if you dont know what it is
