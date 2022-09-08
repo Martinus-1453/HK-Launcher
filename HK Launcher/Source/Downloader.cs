@@ -6,7 +6,7 @@ namespace HK_Launcher.Source
     internal static class Downloader
     {
         static WebClient webClient = new();
-        public static readonly string remoteUri = "http://localhost:8080/";
+        public static readonly string remoteUri = "http://historiakoloniilauncher.hmcloud.pl/";
         public static readonly string manifestFilename = "manifest.hk";
 
         static readonly List<string> nativeDataFileList = new()

@@ -61,11 +61,42 @@ namespace HK_Launcher {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Brakuje plików g2o lub program jest w złym folderze.
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        public static string Form1_button1_Click_files_missing {
+        public static System.Drawing.Bitmap Launcher {
             get {
-                return ResourceManager.GetString("Form1_button1_Click_files_missing", resourceCulture);
+                object obj = ResourceManager.GetObject("Launcher", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        public static System.Drawing.Bitmap Mini {
+            get {
+                object obj = ResourceManager.GetObject("Mini", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        public static System.Drawing.Bitmap X {
+            get {
+                object obj = ResourceManager.GetObject("X", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        public static System.Drawing.Bitmap Zagraj {
+            get {
+                object obj = ResourceManager.GetObject("Zagraj", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
             }
         }
     }

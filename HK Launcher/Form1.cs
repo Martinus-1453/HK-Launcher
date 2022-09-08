@@ -8,11 +8,39 @@ namespace HK_Launcher
         public Form1()
         {
             InitializeComponent();
+            MouseDown += Form1_MouseDown;
+            button1.Click += button1_Click;
+            button2.Click += button2_Click;
+            button3.Click += button3_Click;
+            progressBar1.ForeColor = Color.FromArgb(112, 98, 53);
+            progressBar1.BackColor = Color.FromArgb(66,56,23);
         }
 
-        private void splitContainer1_SplitterMoved(object sender, SplitterEventArgs e)
+        private async void button3_Click(object? sender, EventArgs e)
         {
+            WindowState = FormWindowState.Minimized;
         }
+        private async void button2_Click(object? sender, EventArgs e)
+        {
+            Application.Exit();
+        }
+
+        private void Form1_MouseDown(object? sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Left)
+            {
+                ReleaseCapture();
+                SendMessage(Handle, WM_NCLBUTTONDOWN, HT_CAPTION, 0);
+            }
+        }
+
+        public const int WM_NCLBUTTONDOWN = 0xA1;
+        public const int HT_CAPTION = 0x2;
+
+        [System.Runtime.InteropServices.DllImport("user32.dll")]
+        public static extern int SendMessage(IntPtr hWnd, int Msg, int wParam, int lParam);
+        [System.Runtime.InteropServices.DllImport("user32.dll")]
+        public static extern bool ReleaseCapture();
 
         private bool CheckRequiredFilesExist()
         {
@@ -24,6 +52,8 @@ namespace HK_Launcher
         private async void button1_Click(object sender, EventArgs e)
         {
             button1.Enabled = false;
+            button1.Visible = false;
+            progressBar1.Visible = true;
             try
             {
                 if (CheckRequiredFilesExist())
@@ -45,6 +75,8 @@ namespace HK_Launcher
             finally
             {
                 button1.Enabled = true;
+                button1.Visible = true;
+                progressBar1.Visible = false;
             }
         }
 
@@ -107,6 +139,11 @@ namespace HK_Launcher
 
         private void label1_Click(object sender, EventArgs e)
         {
+        }
+
+        private void button1_Click_1(object sender, EventArgs e)
+        {
+
         }
     }
 }
