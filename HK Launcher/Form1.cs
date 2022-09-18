@@ -1,5 +1,6 @@
 using Extensions;
 using HK_Launcher.Source;
+using HK_Shared.Source;
 
 namespace HK_Launcher
 {
@@ -88,9 +89,13 @@ namespace HK_Launcher
             await Downloader.DownloadFile(Downloader.manifestFilename);
             progressBar1.Style = ProgressBarStyle.Marquee;
             label1.Text = "Sprawdzanie plików...";
-            var downloadList = Checksum.ReadChecksumManifest(Downloader.manifestFilename);
+            var manifest = Checksum.ReadChecksumManifest(Downloader.manifestFilename);
+            await manifest;
+            var manifestResult = manifest.Result;
+            Downloader.OldFilesRemover(manifestResult);
+            manifest = Checksum.ProcessChecksumManifest(manifestResult);
             var counter = 0;
-            await downloadList;
+
             string downloadInfo = string.Empty;
             string namename = string.Empty;
             Downloader.SetHandlers((s, e) =>
@@ -110,18 +115,14 @@ namespace HK_Launcher
                     });
                 });
             progressBar1.Style = ProgressBarStyle.Continuous;
-            Downloader.OldFilesRemover(downloadList.Result.Keys);
-            foreach (var download in downloadList.Result)
+            await manifest;
+            manifestResult = manifest.Result;
+            foreach (var download in manifestResult.ManifestEntries)
             {
-                if (download.Value == String.Empty)
-                {
-                    continue;
-                }
-
                 ++counter;
-                downloadInfo = $"Pobieranie ({counter}/{downloadList.Result.Keys.Count})";
-                namename = download.Key;
-                await Downloader.DownloadFile(download.Key);
+                downloadInfo = $"Pobieranie ({counter}/{manifestResult.ManifestEntries.Count})";
+                namename = download.Filename;
+                await Downloader.DownloadFile(download.Filename, download.Filepath);
             }
 
             label1.Text = "Gotowe!";

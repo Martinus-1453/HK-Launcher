@@ -1,65 +1,59 @@
 ﻿using System.Collections.Concurrent;
 using System.Security.Cryptography;
+using System.Security.Cryptography.Xml;
+using HK_Shared.Source;
+using Newtonsoft.Json;
 
 namespace HK_Launcher.Source
 {
     internal static class Checksum
     {
-        private static readonly ConcurrentDictionary<string, string> filesToUpdate = new();
-
-        public static async Task ChecksumValidation(string filename, string checksum)
+        public static async Task<ManifestEntry?> ChecksumValidation(ManifestEntry entry)
         {
-            if (!File.Exists(filename)) return;
+            var filename = entry.GetFullName();
+            if (!File.Exists(filename)) return null;
 
             using var md5 = MD5.Create();
             await using var stream = File.OpenRead(filename);
             var hash = md5.ComputeHashAsync(stream);
             await hash;
             var result = BitConverter.ToString(hash.Result).Replace("-", "").ToLowerInvariant();
-            if (result == checksum)
+            if (result == entry.Checksum)
             {
-                filesToUpdate[Path.GetFileName(filename)] = String.Empty;
+                return entry;
             }
-            else
-            {
-                return;
-            }
+
+            return null;
         }
 
-        public static async Task<ConcurrentDictionary<string, string>> ReadChecksumManifest(string filename)
+        public static async Task<Manifest?> ReadChecksumManifest(string filename)
         {
-            filesToUpdate.Clear();
-            foreach (var line in await File.ReadAllLinesAsync(filename))
+            return JsonConvert.DeserializeObject<Manifest>(await File.ReadAllTextAsync(filename));
+        }
+
+        public static async Task<Manifest?> ProcessChecksumManifest(Manifest? manifest)
+        {
+            var taskList = new List<Task<ManifestEntry?>>();
+
+            if (manifest != null)
             {
-                var parts = line.Split(' ');
-                if (parts.Length < 2)
+                foreach (var entry in manifest.ManifestEntries)
                 {
-                    throw new Exception("File checksum is missing");
-                }
-
-                var hash = parts.LastOrDefault();
-                var file = string.Join(" ", parts[0..^1]);
-                filesToUpdate.TryAdd(file, hash);
-            }
-
-            var taskList = new List<Task>();
-
-            foreach (var file in filesToUpdate)
-            {
-                Constants.fileExtensionMap.TryGetValue(Path.GetExtension(file.Key).ToLower(), out var filePath);
-                if (filePath != null)
-                {
-                    Directory.CreateDirectory(Path.Combine(Directory.GetCurrentDirectory(), filePath));
-                    taskList.Add(ChecksumValidation(Path.Combine(filePath, file.Key), file.Value));
-                }
-                else
-                {
-                    taskList.Add(ChecksumValidation(file.Key, file.Value));
+                    Directory.CreateDirectory(Path.Combine(Directory.GetCurrentDirectory(), entry.Filepath));
+                    taskList.Add(ChecksumValidation(entry));
                 }
             }
 
-            await Task.WhenAll(taskList);
-            return filesToUpdate;
+            var result = await Task.WhenAll(taskList);
+
+            foreach (var task in result)
+            {
+                if (task != null)
+                {
+                    manifest?.ManifestEntries.Remove((ManifestEntry)task);
+                }
+            }
+            return manifest;
         }
     }
 }

@@ -1,5 +1,7 @@
 ﻿using System.Collections.Concurrent;
 using System.Security.Cryptography;
+using HK_Shared.Source;
+using Newtonsoft.Json;
 
 
 const string manifestFilename = "manifest.hk";
@@ -8,10 +10,10 @@ var allowedExtensions = new[] { ".vdf", ".zen", ".dll" };
 //Delete old manifest file
 File.Delete(manifestFilename);
 
-ConcurrentDictionary<string, string> fileHashDictionary = new();
+ConcurrentBag<ManifestEntry> fileHashBag = new();
 
 var fileList = Directory
-    .GetFiles(Directory.GetCurrentDirectory())
+    .GetFiles(Directory.GetCurrentDirectory(), "*.*", SearchOption.AllDirectories)
     .Where(file => allowedExtensions.Any(file.ToLower().EndsWith))
     .ToList();
 
@@ -25,15 +27,14 @@ Parallel.ForEach(fileList, file =>
     using var stream = File.OpenRead(file);
     var hash = md5.ComputeHash(stream);
     var result = BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant();
-    fileHashDictionary.TryAdd(Path.GetFileName(file), result);
+    var entry = new ManifestEntry
+        { Checksum = result, Filename = Path.GetFileName(file), Filepath = Path.GetRelativePath(Directory.GetCurrentDirectory(), Path.GetDirectoryName(file)) };
+    fileHashBag.Add(entry);
 });
 
 using StreamWriter outputFile = new(manifestFilename, append: false);
-
-foreach (var keyPair in fileHashDictionary)
-{
-    outputFile.WriteLine($"{keyPair.Key} {keyPair.Value}");
-}
+var manifest = new Manifest { ManifestEntries = fileHashBag.ToList() };
+outputFile.Write(JsonConvert.SerializeObject(manifest, Formatting.Indented));
 
 outputFile.Close();
 Console.WriteLine("manifest.hk is ready!");

@@ -1,12 +1,18 @@
 ﻿using System.ComponentModel;
 using System.Net;
+using HK_Shared.Source;
 
 namespace HK_Launcher.Source
 {
     internal static class Downloader
     {
         static WebClient webClient = new();
+#if DEBUG
+        public static readonly string remoteUri = "http://localhost:7800/";
+#else
         public static readonly string remoteUri = "http://historiakoloniilauncher.hmcloud.pl/";
+#endif
+
         public static readonly string manifestFilename = "manifest.hk";
 
         static readonly List<string> nativeDataFileList = new()
@@ -35,29 +41,26 @@ namespace HK_Launcher.Source
             webClient.DownloadProgressChanged += downloadFileProgressHandler;
         }
 
-        public static async Task DownloadFile(string filename)
+        public static async Task DownloadFile(string fileName, string filePath = "")
         {
-            Constants.fileExtensionMap.TryGetValue(Path.GetExtension(filename).ToLower(), out var filePath);
-            if (filePath != null)
+            if (filePath != "." && filePath != string.Empty)
             {
                 Directory.CreateDirectory(Path.Combine(Directory.GetCurrentDirectory(), filePath));
-                await webClient.DownloadFileTaskAsync($"{remoteUri}{filename}", Path.Combine(filePath, filename));
+                await webClient.DownloadFileTaskAsync($"{remoteUri}{Path.Combine(filePath, fileName)}", Path.Combine(filePath, fileName));
             }
             else
             {
-                await webClient.DownloadFileTaskAsync($"{remoteUri}{filename}", filename);
+                await webClient.DownloadFileTaskAsync($"{remoteUri}{fileName}", fileName);
             }
         }
 
-        public static void OldFilesRemover(ICollection<string> fileCollection)
+        public static void OldFilesRemover(Manifest manifest)
         {
-            var currentDataFiles = Directory.GetFiles(Path.Combine(Directory.GetCurrentDirectory(), "Data/"));
+            var currentDataFiles = Directory.GetFiles(Path.Combine(Directory.GetCurrentDirectory(), manifest.CUSTOM_FOLDER_PATH));
 
             foreach (var file in currentDataFiles)
             {
-                var fileName = Path.GetFileName(file);
-                if (!nativeDataFileList.Contains(fileName, StringComparer.OrdinalIgnoreCase) &&
-                    !fileCollection.Contains(fileName, StringComparer.OrdinalIgnoreCase))
+                if (manifest.ManifestEntries.All(item => item.GetFullName() != file))
                 {
                     File.Delete(file);
                 }
