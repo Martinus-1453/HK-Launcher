@@ -37,7 +37,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\HK Shared\HKShared.csproj">
-      <Private>False</Private>
+      <Private></Private>
     </ProjectReference>
   </ItemGroup>
 

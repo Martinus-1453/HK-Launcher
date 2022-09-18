@@ -11,8 +11,8 @@ namespace HK_Launcher
             InitializeComponent();
             MouseDown += Form1_MouseDown;
             button1.Click += button1_Click;
-            button2.Click += button2_Click;
-            button3.Click += button3_Click;
+            //button2.Click += button2_Click;
+            //button3.Click += button3_Click;
             progressBar1.ForeColor = Color.FromArgb(112, 98, 53);
             progressBar1.BackColor = Color.FromArgb(66,56,23);
         }
