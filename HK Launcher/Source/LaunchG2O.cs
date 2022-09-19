@@ -49,7 +49,7 @@ namespace HK_Launcher.Source
         {
             UpdateRegistry();
             var version = G2O_Version();
-            var result = G2O_Run(version.Major, version.Minor, version.Patch);
+            var result = G2O_Run(0, 2, 0);
             switch (result.Result)
             {
                 case Error.Ok:
