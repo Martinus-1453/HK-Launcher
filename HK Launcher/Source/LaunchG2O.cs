@@ -1,5 +1,6 @@
 ﻿using Microsoft.Win32;
 using System.Runtime.InteropServices;
+using Version = HK_Shared.Source.Version;
 
 namespace HK_Launcher.Source
 {
@@ -15,15 +16,6 @@ namespace HK_Launcher.Source
     {
         public Error Result { get; }
         public int Error { get; }
-    }
-
-    internal struct Version
-    {
-        public int Major { get; }
-        public int Minor { get; }
-        public int Patch { get; }
-        public int Build { get; }
-        public override string ToString() => $"{Major}.{Minor}.{Patch}.{Build}";
     }
 
     internal static class LaunchG2O
@@ -45,11 +37,10 @@ namespace HK_Launcher.Source
             key?.Close();
         }
 
-        public static void JoinServer()
+        public static void JoinServer(Version version)
         {
             UpdateRegistry();
-            var version = G2O_Version();
-            var result = G2O_Run(0, 2, 0);
+            var result = G2O_Run(version.Major, version.Minor, version.Patch);
             switch (result.Result)
             {
                 case Error.Ok:

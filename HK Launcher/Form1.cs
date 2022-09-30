@@ -1,6 +1,6 @@
 using Extensions;
 using HK_Launcher.Source;
-using HK_Shared.Source;
+using Version = HK_Shared.Source.Version;
 
 namespace HK_Launcher
 {
@@ -59,9 +59,9 @@ namespace HK_Launcher
             {
                 if (CheckRequiredFilesExist())
                 {
-                    await DownloadLogic();
+                    var version = await DownloadLogic();
 #if !DEBUG
-                LaunchG2O.JoinServer();
+                    LaunchG2O.JoinServer(version);
 #endif
                 }
                 else
@@ -81,7 +81,7 @@ namespace HK_Launcher
             }
         }
 
-        private async Task DownloadLogic()
+        private async Task<Version> DownloadLogic()
         {
             progressBar1.Style = ProgressBarStyle.Continuous;
             progressBar1.Value = 0;
@@ -127,6 +127,7 @@ namespace HK_Launcher
 
             label1.Text = "Gotowe!";
             progressBar1.Value = 100;
+            return manifestResult.G2O_VERSION;
         }
 
         private void Invoker(MethodInvoker methodInvokerDelegate)
